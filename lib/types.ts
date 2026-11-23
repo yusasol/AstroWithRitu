@@ -1,0 +1,25 @@
+export type SiteSettings = {
+  brandName: string;
+  practitionerName: string;
+  city: string;
+  contactEmail: string;
+  contactPhone: string;
+  tagline: string;
+  heroHeading: string;
+  heroCopy: string;
+  aboutHeading: string;
+  aboutCopy: string;
+  demoBanner: string;
+  instagramUrl: string;
+  youtubeUrl: string;
+  featuredVideoUrl: string;
+  upiId: string;
+  consultationLocation: string;
+};
+export type Service = { id: string; slug: string; name: string; description: string; durationMinutes: number; priceRupees: number; mode: string; active: boolean; sortOrder: number; externalPaymentUrl?: string | null };
+export type Testimonial = { id: string; quote: string; attribution: string; published: boolean; sortOrder: number };
+export type FAQ = { id: string; question: string; answer: string; published: boolean; sortOrder: number };
+export type Policy = { id: string; title: string; body: string; published: boolean; sortOrder: number };
+export type AvailabilitySlot = { id: string; weekday: number; localTime: string; active: boolean };
+export type BlogPost = { id: string; slug: string; title: string; excerpt: string; body: string; videoUrl: string; published: boolean; createdAt: string; updatedAt: string };
+export type PublicContent = { settings: SiteSettings; services: Service[]; testimonials: Testimonial[]; faqs: FAQ[]; policies: Policy[]; posts: BlogPost[] };

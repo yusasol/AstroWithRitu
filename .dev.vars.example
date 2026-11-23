@@ -1,0 +1,4 @@
+# Copy to .dev.vars for local Wrangler preview. Never commit .dev.vars.
+LOCAL_DEV=true
+ADMIN_USER_ID=local-developer
+INTAKE_ENCRYPTION_KEY=replace-with-a-base64-encoded-32-byte-key

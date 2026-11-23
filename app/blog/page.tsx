@@ -1,0 +1,5 @@
+import { desc, eq } from "drizzle-orm";
+import { getDb } from "@/db";
+import { blogPosts } from "@/db/schema";
+export const dynamic="force-dynamic";
+export default async function BlogPage(){const posts=await getDb().select().from(blogPosts).where(eq(blogPosts.published,true)).orderBy(desc(blogPosts.createdAt)).all();return <main className="blog-page"><header className="site-header container"><a className="brand" href="/">✦ AstroWithRitu</a><nav><a href="/">Home</a><a href="/#book" className="button button-small">Request a consultation</a></nav></header><section className="section container"><p className="eyebrow">BLOG &amp; UPDATES</p><h1>Notes for the path ahead.</h1><div className="blog-list">{posts.map(post=><article className="service-card" key={post.id}><p className="eyebrow">{new Date(post.createdAt).toLocaleDateString("en-IN",{year:"numeric",month:"long",day:"numeric"})}</p><h2><a href={`/blog/${post.slug}`}>{post.title}</a></h2><p>{post.excerpt}</p><a className="service-link" href={`/blog/${post.slug}`}>Read article ↗</a></article>)}{!posts.length&&<p>New articles and updates will appear here.</p>}</div></section></main>}
