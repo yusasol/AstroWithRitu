@@ -21,7 +21,9 @@ Requires Node.js 22.13.0 or later.
 3. Run `npm run install:ci`, `npm run build`, and `npm run db:apply:local`.
 4. Run `npm run dev` and open the local address printed by Vinext.
 
-The local admin bypass is for development only, and only when both the Vite dev server and `LOCAL_DEV=true` are active. Production admin access verifies `Cf-Access-Jwt-Assertion` against the Cloudflare Access JWKS, then checks issuer, audience, expiry, and the email claim against `ADMIN_EMAIL`. Set `CF_ACCESS_TEAM_DOMAIN`, `CF_ACCESS_AUD`, and `ADMIN_EMAIL` as Worker variables or secrets. Do not commit real values. `ADMIN_USER_ID` is not the admin login; production intake still requires it before it can be enabled.
+The local admin bypass is for `npm run dev` only, and only when both the Vite dev server and `LOCAL_DEV=true` are active. `npm run preview` serves the production build, so that bypass cannot apply there. Do not set `LOCAL_DEV` on the deployed Worker.
+
+Production admin access verifies `Cf-Access-Jwt-Assertion` against the Cloudflare Access JWKS, then checks issuer, audience, expiry, and the email claim against `ADMIN_EMAIL`. `ADMIN_USER_ID` is not the admin login; production intake still requires it before it can be enabled.
 
 ## Admin
 
@@ -36,7 +38,21 @@ The repository and D1 defaults intentionally contain no fake testimonial, no sam
 
 ## Database changes
 
-Edit `db/schema.ts`, generate a migration with `npm run db:generate`, inspect and commit the SQL and Drizzle metadata. Do not edit a migration that has already been applied. Local and hosted D1 are separate; Sites publication applies hosted migrations.
+Edit `db/schema.ts`, generate a migration with `npm run db:generate`, inspect and commit the SQL and Drizzle metadata. Do not edit a migration that has already been applied. Local and hosted D1 are separate. Apply local files with `npm run db:apply:local` and hosted files with `npm run db:apply:remote`.
+
+## Cloudflare Worker
+
+`wrangler.jsonc` is the Worker and D1 configuration. `npm run build` copies it into `dist/server/wrangler.json`, with `main` rewritten to the bundled `index.js` and static assets pointed at `../client`. Preview and deploy use that generated file. No custom domain or DNS record is configured here.
+
+1. Run `npx wrangler login` in the Cloudflare account that should own the Worker.
+2. The Worker name is `astro-with-ritu` and the D1 database name is `astrowithritu-db`. The D1 binding must remain `DB`.
+3. `database_id` in `wrangler.jsonc` already points at the existing `astrowithritu-db` database. Do not run `npm run db:create` again.
+4. Run `npm run build`, then `npm run db:apply:remote`.
+5. Set production values with Wrangler secrets. Do not commit them. Use `npx wrangler secret put <NAME> --config dist/server/wrangler.json` for `INTAKE_ENCRYPTION_KEY`, `ADMIN_USER_ID`, `CF_ACCESS_TEAM_DOMAIN`, `CF_ACCESS_AUD`, and `ADMIN_EMAIL`. Leave `LOCAL_DEV` unset. Leave `PUBLIC_INTAKE_ENABLED` unset until the launch gates in the security review are done.
+6. Run `npm run deploy`.
+7. Run `npm run preview` to exercise the built Worker locally. This requires the build from step 4.
+
+`npm run dev` remains the Vite development server. `npm run db:apply:local` still applies SQL to the local D1 state and requires a prior build.
 
 ## Main files
 

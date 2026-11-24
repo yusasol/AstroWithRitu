@@ -1,0 +1,18 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "astro-with-ritu",
+	"main": "./worker/index.ts",
+	"compatibility_date": "2026-05-15",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	// Binding name must stay "DB". Do not put secrets in this file.
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "astrowithritu-db",
+			"database_id": "ea097fb9-50cf-4648-8d60-a5bccb70c23d",
+			"migrations_dir": "drizzle"
+		}
+	]
+}
