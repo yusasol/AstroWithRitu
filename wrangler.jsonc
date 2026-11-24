@@ -6,6 +6,11 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
+	"vars": {
+		"ADMIN_EMAIL": "admin@astrowithritu.com",
+		"CF_ACCESS_AUD": "c834e846b89fdbed6073da2c194cda805397640cb652b4b27fe0b742fc05b3e9",
+		"CF_ACCESS_TEAM_DOMAIN": "proud-hill-26b0.cloudflareaccess.com"
+	},
 	// Binding name must stay "DB". Do not put secrets in this file.
 	"d1_databases": [
 		{
