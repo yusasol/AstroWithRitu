@@ -1,4 +1,20 @@
 # Copy to .dev.vars for local Wrangler preview. Never commit .dev.vars.
+# Local admin pages and /api/admin routes skip Cloudflare Access only when the
+# Vite dev server is running and LOCAL_DEV=true. Production must leave this unset.
 LOCAL_DEV=true
+# Still required before production intake can be enabled. Not used for admin login.
 ADMIN_USER_ID=local-developer
 INTAKE_ENCRYPTION_KEY=replace-with-a-base64-encoded-32-byte-key
+
+# Production admin authentication (Cloudflare Access). Set these as Worker
+# variables or secrets. Do not commit real values. They are ignored while the
+# local bypass above is active.
+# Team hostname only, for example your-team.cloudflareaccess.com.
+# Issuer is https://<CF_ACCESS_TEAM_DOMAIN>. Signing keys are loaded only from
+# https://<CF_ACCESS_TEAM_DOMAIN>/cdn-cgi/access/certs.
+CF_ACCESS_TEAM_DOMAIN=
+# Application Audience (AUD) tag from the Access application.
+CF_ACCESS_AUD=
+# Must match the email claim inside the verified Cf-Access-Jwt-Assertion JWT.
+# Cf-Access-Authenticated-User-Email is not accepted as proof.
+ADMIN_EMAIL=

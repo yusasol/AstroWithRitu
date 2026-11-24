@@ -9,7 +9,7 @@ The Site can be published as a public informational page. Public appointment and
 ## Security controls implemented
 
 - Customer name/contact, birth details, consultation question and UPI reference are encrypted with AES-GCM before D1 storage. Repeat-customer lookup uses keyed HMAC rather than a plaintext contact index.
-- Admin pages and APIs require the configured owner identity; the local bypass is restricted to a development build.
+- Admin pages and `/api/admin` routes verify the Cloudflare Access JWT in `Cf-Access-Jwt-Assertion` (signature via the team JWKS, plus issuer, audience, expiry, and `ADMIN_EMAIL`). The Access email header is not accepted. The local bypass requires both a development build and `LOCAL_DEV=true`.
 - Admin pages and API responses are private/no-store. The Worker adds CSP, HSTS on HTTPS, frame denial, MIME sniffing protection, a strict referrer policy, and a restricted permissions policy.
 - Public request handlers reject oversized payloads and cross-origin booking submissions and include a honeypot. They are additionally disabled in production until explicitly enabled.
 - Payment records are created as PENDING. Only the authenticated owner can verify a payment after checking the receiving account; UTR is encrypted.

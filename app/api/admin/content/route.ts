@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 const noStore = { "Cache-Control": "private, no-store" };
 
 export async function GET(request: Request) {
-  if (!isSiteOwner(request)) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
+  if (!(await isSiteOwner(request))) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
   try {
     await ensureSeedData();
     const [content, allServices, availability] = await Promise.all([getSiteContent(), getDb().select().from(services).all(), getDb().select().from(availabilitySlots).all()]);
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  if (!isSiteOwner(request)) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
+  if (!(await isSiteOwner(request))) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
   const length = Number(request.headers.get("content-length") || 0);
   if (length > 200_000) return NextResponse.json({ error: "The content update is too large." }, { status: 413, headers: noStore });
   let payload: unknown;

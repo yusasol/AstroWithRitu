@@ -8,12 +8,12 @@ import { decryptIntake } from "@/lib/security";
 export const dynamic = "force-dynamic";
 const noStore = { "Cache-Control": "private, no-store" };
 export async function GET(request: Request) {
-  if (!isSiteOwner(request)) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
+  if (!(await isSiteOwner(request))) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
   try { const rows = await getDb().select().from(feedback).orderBy(desc(feedback.createdAt)).limit(200).all(); const items = await Promise.all(rows.map(async (item) => ({ id: item.id, status: item.status, rating: item.rating, createdAt: item.createdAt, ...(await decryptIntake(item.encryptedPayload)) }))); return NextResponse.json({ feedback: items }, { headers: noStore }); }
   catch { return NextResponse.json({ error: "Could not load feedback." }, { status: 503, headers: noStore }); }
 }
 export async function PATCH(request: Request) {
-  if (!isSiteOwner(request)) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
+  if (!(await isSiteOwner(request))) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
   let body: { id?: unknown; status?: unknown };
   try { body = await request.json() as { id?: unknown; status?: unknown }; } catch { return NextResponse.json({ error: "Send a valid review update." }, { status: 400 }); }
   if (typeof body.id !== "string" || !["APPROVED", "REJECTED"].includes(String(body.status))) return NextResponse.json({ error: "Invalid review status." }, { status: 400 });

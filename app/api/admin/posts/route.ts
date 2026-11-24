@@ -9,12 +9,12 @@ import { postsSchema } from "@/lib/validators";
 export const dynamic = "force-dynamic";
 const noStore = { "Cache-Control": "private, no-store" };
 export async function GET(request: Request) {
-  if (!isSiteOwner(request)) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
+  if (!(await isSiteOwner(request))) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
   try { return NextResponse.json({ posts: await getDb().select().from(blogPosts).orderBy(desc(blogPosts.createdAt)).all() }, { headers: noStore }); }
   catch { return NextResponse.json({ error: "Could not load articles." }, { status: 503, headers: noStore }); }
 }
 export async function PUT(request: Request) {
-  if (!isSiteOwner(request)) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
+  if (!(await isSiteOwner(request))) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
   let body: unknown;
   try { body = await request.json(); } catch { return NextResponse.json({ error: "Send valid article data." }, { status: 400 }); }
   const parsed = postsSchema.safeParse(body);

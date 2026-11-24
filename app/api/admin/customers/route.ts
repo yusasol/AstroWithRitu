@@ -7,7 +7,7 @@ import { decryptIntake } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
-  if (!isSiteOwner(request)) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
+  if (!(await isSiteOwner(request))) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
   try {
     const rows = await getDb().select().from(customers).orderBy(desc(customers.updatedAt)).limit(250).all();
     const records = await Promise.all(rows.map(async (row) => ({ id: row.id, createdAt: row.createdAt, updatedAt: row.updatedAt, ...(await decryptIntake(row.encryptedPayload)) })));

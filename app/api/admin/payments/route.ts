@@ -9,7 +9,7 @@ import { paymentSchema } from "@/lib/validators";
 export const dynamic = "force-dynamic";
 const noStore = { "Cache-Control": "private, no-store" };
 export async function GET(request: Request) {
-  if (!isSiteOwner(request)) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
+  if (!(await isSiteOwner(request))) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
   try {
     const rows = await getDb().select({ payment: payments, customer: customers.encryptedPayload, bookingDate: bookings.sessionDate })
       .from(payments).leftJoin(customers, eq(payments.customerId, customers.id)).leftJoin(bookings, eq(payments.bookingId, bookings.id)).orderBy(desc(payments.receivedAt)).limit(500).all();
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   } catch { return NextResponse.json({ error: "Could not load payment records." }, { status: 503, headers: noStore }); }
 }
 export async function POST(request: Request) {
-  if (!isSiteOwner(request)) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
+  if (!(await isSiteOwner(request))) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
   let body: unknown;
   try { body = await request.json(); } catch { return NextResponse.json({ error: "Send valid payment details." }, { status: 400 }); }
   const parsed = paymentSchema.safeParse(body);
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
   } catch { return NextResponse.json({ error: "Could not save payment record." }, { status: 500, headers: noStore }); }
 }
 export async function PATCH(request: Request) {
-  if (!isSiteOwner(request)) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
+  if (!(await isSiteOwner(request))) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
   let body: unknown;
   try { body = await request.json(); } catch { return NextResponse.json({ error: "Send a valid payment update." }, { status: 400 }); }
   const value = body as { id?: unknown; status?: unknown };

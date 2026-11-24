@@ -7,7 +7,7 @@ A custom full-stack consultation website for Ritu Asthana. Stack: React/TypeScri
 - Configurable profile, services, FAQs, policies, availability, blog and social links
 - In-person consultation requests and customer/payment ledger
 - AES-GCM encrypted customer contact, birth details and UPI references; HMAC contact matching
-- Owner-only admin protected by the authenticated Site owner identity
+- Owner-only admin. Production checks a Cloudflare Access JWT and `ADMIN_EMAIL`
 - YouTube playback and Instagram profile links
 - Feedback stays private until the owner approves it; publication requires explicit consent
 - UPI payments start as pending and require manual reconciliation against the receiving bank/UPI account
@@ -21,7 +21,7 @@ Requires Node.js 22.13.0 or later.
 3. Run `npm run install:ci`, `npm run build`, and `npm run db:apply:local`.
 4. Run `npm run dev` and open the local address printed by Vinext.
 
-The local sign-in helper is for development only. Production admin access uses the authenticated owner identity and `ADMIN_USER_ID`.
+The local admin bypass is for development only, and only when both the Vite dev server and `LOCAL_DEV=true` are active. Production admin access verifies `Cf-Access-Jwt-Assertion` against the Cloudflare Access JWKS, then checks issuer, audience, expiry, and the email claim against `ADMIN_EMAIL`. Set `CF_ACCESS_TEAM_DOMAIN`, `CF_ACCESS_AUD`, and `ADMIN_EMAIL` as Worker variables or secrets. Do not commit real values. `ADMIN_USER_ID` is not the admin login; production intake still requires it before it can be enabled.
 
 ## Admin
 

@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 const noStore = { "Cache-Control": "private, no-store" };
 
 export async function GET(request: Request) {
-  if (!isSiteOwner(request)) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
+  if (!(await isSiteOwner(request))) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
   try {
     const rows = await getDb().select({ id: bookings.id, serviceId: bookings.serviceId, serviceName: services.name, date: bookings.sessionDate, time: bookings.sessionTime, encryptedPayload: bookings.encryptedPayload, status: bookings.status, paymentStatus: bookings.paymentStatus, meetingUrl: bookings.meetingUrl, createdAt: bookings.createdAt })
       .from(bookings).leftJoin(services, eq(bookings.serviceId, services.id)).orderBy(desc(bookings.createdAt)).limit(50).all();
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  if (!isSiteOwner(request)) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
+  if (!(await isSiteOwner(request))) return NextResponse.json({ error: "Owner access required." }, { status: 403, headers: noStore });
   let payload: unknown;
   try { payload = await request.json(); } catch { return NextResponse.json({ error: "Send a valid update." }, { status: 400, headers: noStore }); }
   const parsed = bookingStatusSchema.safeParse(payload);
