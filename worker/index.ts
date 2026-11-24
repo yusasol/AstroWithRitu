@@ -2,6 +2,23 @@ import handler from "vinext/server/fetch-handler";
 import { runWithConnectorBinding } from "../lib/connector-context";
 import type { ConnectorBinding } from "../lib/connector-contract.mjs";
 
+// One literal per directive. A minifier can turn a single policy string into
+// `object-src'none'`, which browsers do not treat as object-src.
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "object-src 'none'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self' data:",
+  "connect-src 'self'",
+  "frame-src https://www.youtube-nocookie.com",
+  "upgrade-insecure-requests",
+].join("; ");
+
 const worker = {
   fetch(request: Request, env: Cloudflare.Env, ctx: ExecutionContext<{ CONNECTORS?: ConnectorBinding }>) {
     let binding = ctx.props?.CONNECTORS;
@@ -26,7 +43,7 @@ const worker = {
     return runWithConnectorBinding(binding, async () => {
       const response = await handler.fetch(request, env, ctx);
       const headers = new Headers(response.headers);
-      headers.set("Content-Security-Policy", "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; frame-src https://www.youtube-nocookie.com; upgrade-insecure-requests");
+      headers.set("Content-Security-Policy", contentSecurityPolicy);
       headers.set("X-Content-Type-Options", "nosniff");
       headers.set("X-Frame-Options", "DENY");
       headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
